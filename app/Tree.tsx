@@ -63,7 +63,7 @@ const Tree = ({
   position: Vector3;
   rotation: Euler;
 }) => {
-  const treeRef = useRef<Group>();
+  const treeRef = useRef<Group>(null);
   const shakeStartTime = useRef(0);
   const originalPosition = useRef<Vector3 | null>(null);
 
