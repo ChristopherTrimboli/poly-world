@@ -242,7 +242,7 @@ const SceneContent = () => {
           </Suspense>
 
           {/* player */}
-          <Ecctrl>
+          <Ecctrl camCollision={false}>
             <pointLight intensity={2} />
             <Capsule args={[0.3, 0.5, 4, 12]}>
               <meshPhongMaterial
