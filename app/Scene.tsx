@@ -11,14 +11,7 @@ import {
   StatsGl,
   useKeyboardControls,
 } from "@react-three/drei";
-import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -33,7 +26,6 @@ import {
 import { Physics, RigidBody } from "@react-three/rapier";
 import Ecctrl from "ecctrl";
 import { SUBTRACTION, Brush, Evaluator, ADDITION } from "three-bvh-csg";
-import { throttle } from "lodash";
 import Tree from "./Tree";
 
 // types for keyboard controls
@@ -87,7 +79,7 @@ terrainBrush.rotation.set(-Math.PI / 2, 0, 0);
 const evaluator = new Evaluator();
 
 const Terrain = () => {
-  // key to force re-render of Rigidbody on terrain, managed by throttledKeySet
+  // key to force re-render of Rigidbody on terrain
   const [key, setKey] = useState(0);
 
   const { raycaster, camera, scene, mouse, gl } = useThree();
@@ -109,16 +101,6 @@ const Terrain = () => {
       gl.domElement.removeEventListener("mousemove", onMouseMove);
     };
   }, [mouse, gl]);
-
-  // throttled key set, to prevent too many updates to Rapier physics engine
-  const throttledKeySet = useMemo(
-    () =>
-      throttle(() => {
-        console.log("debouncedKeySet");
-        setKey((prevKey) => prevKey + 1);
-      }, 1000),
-    []
-  );
 
   const onEditTerrain = useCallback(
     async (type: "sphereDelete" | "sphereAdd") => {
@@ -155,9 +137,9 @@ const Terrain = () => {
       }
       terrianBrush.current = newResultCSG!;
 
-      throttledKeySet();
+      setKey((prevKey) => prevKey + 1);
     },
-    [camera, mouse, raycaster, scene.children, throttledKeySet]
+    [camera, mouse, raycaster, scene.children]
   );
 
   useEffect(() => {
