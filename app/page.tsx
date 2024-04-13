@@ -1,5 +1,11 @@
+import Overlay from "./Overlay";
 import Scene from "./Scene";
 
 export default function PolyWorld() {
-  return <Scene />;
+  return (
+    <>
+      <Overlay />
+      <Scene />
+    </>
+  );
 }
