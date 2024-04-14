@@ -28,7 +28,14 @@ const Terrain = () => {
       new Array(gridSize).fill(null).map((_, x) => {
         return new Array(gridSize).fill(null).map((_, z) => {
           const gridBrush = new Brush(
-            new BoxGeometry(gridSpacing, gridSpacing, gridSpacing, 1, 1, 1)
+            new BoxGeometry(
+              gridSpacing + 0.001,
+              gridSpacing + 0.001,
+              gridSpacing * 2,
+              1,
+              1,
+              1
+            )
           );
           gridBrush.material = new MeshPhongMaterial({
             color: Math.random() * 0xffffff,
@@ -39,7 +46,7 @@ const Terrain = () => {
 
           gridBrush.position.set(
             x * gridSpacing,
-            -gridSpacing / 2,
+            -gridSpacing,
             z * gridSpacing
           );
           gridBrush.rotation.set(-Math.PI / 2, 0, 0);
