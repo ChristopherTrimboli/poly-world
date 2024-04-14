@@ -10,7 +10,7 @@ const Overlay = () => {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(window?.navigator?.userAgent));
   }, []);
 
-  return <>{isMobile && <EcctrlJoystick buttonNumber={1} />}</>;
+  return <>{isMobile && <EcctrlJoystick buttonNumber={2} />}</>;
 };
 
 export default Overlay;

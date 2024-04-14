@@ -14,6 +14,7 @@ import {
 } from "three";
 import { Brush, SUBTRACTION, ADDITION, Evaluator } from "three-bvh-csg";
 import { Controls } from "./Scene";
+import { useJoystickControls } from "ecctrl";
 
 // Cave tunnel curve
 const caveCurve = new CatmullRomCurve3([
@@ -21,10 +22,10 @@ const caveCurve = new CatmullRomCurve3([
   new Vector3(-10, -8, -10), // Go into the ground
   new Vector3(-20, 0, -20), // Come out of the ground
 ]);
-const cavePoints = caveCurve.getPoints(20);
+const cavePoints = caveCurve.getPoints(10);
 
 // sphere brush for CSG operations
-const sphereGeo = new SphereGeometry(3, 6, 6);
+const sphereGeo = new SphereGeometry(2, 6, 6);
 const sphereMaterial = new MeshPhongMaterial({
   color: "tan",
   shininess: 5,
@@ -33,7 +34,6 @@ const sphereMaterial = new MeshPhongMaterial({
 });
 const sphereBrush = new Brush(sphereGeo);
 sphereBrush.material = sphereMaterial;
-sphereBrush.position.set(0, 0, 0);
 
 // terrain brush for CSG operations
 const terrainGeo = new BoxGeometry(50, 50, 100, 1, 1, 1);
@@ -41,6 +41,7 @@ const terrainMaterial = new MeshPhongMaterial({
   color: 0x00ff00,
   shininess: 5,
   flatShading: true,
+  side: 2,
 });
 const terrainBrush = new Brush(terrainGeo);
 terrainBrush.material = terrainMaterial;
@@ -48,16 +49,20 @@ terrainBrush.position.set(0, -50, 0);
 terrainBrush.rotation.set(-Math.PI / 2, 0, 0);
 
 const evaluator = new Evaluator();
+evaluator.consolidateMaterials = true;
 
 const Terrain = () => {
   // key to force re-render of Rigidbody on terrain
   const [key, setKey] = useState(0);
 
   const { raycaster, camera, scene, mouse, gl } = useThree();
-  const terrianBrush = useRef<Brush>(null!);
+  const terrianBrushRef = useRef<Brush>(null!);
 
   const qPressed = useKeyboardControls<Controls>((state) => state.action5);
   const ePressed = useKeyboardControls<Controls>((state) => state.action6);
+  const joystickButton2Pressed = useJoystickControls(
+    (state) => state.curButton2Pressed
+  );
 
   // track mouse for terrain editing raycasting
   useEffect(() => {
@@ -92,7 +97,7 @@ const Terrain = () => {
         sphereBrush.updateMatrixWorld();
 
         newResultCSG = evaluator.evaluate(
-          terrianBrush.current,
+          terrianBrushRef.current,
           sphereBrush,
           SUBTRACTION
         );
@@ -101,12 +106,12 @@ const Terrain = () => {
         sphereBrush.updateMatrixWorld();
 
         newResultCSG = evaluator.evaluate(
-          terrianBrush.current,
+          terrianBrushRef.current,
           sphereBrush,
           ADDITION
         );
       }
-      terrianBrush.current = newResultCSG!;
+      terrianBrushRef.current = newResultCSG!;
 
       setKey((prevKey) => prevKey + 1);
     },
@@ -115,12 +120,12 @@ const Terrain = () => {
 
   useEffect(() => {
     // Edit terrain on key press
-    if (qPressed) {
+    if (qPressed || joystickButton2Pressed) {
       onEditTerrain("sphereDelete");
     } else if (ePressed) {
       onEditTerrain("sphereAdd");
     }
-  }, [ePressed, onEditTerrain, qPressed]);
+  }, [ePressed, joystickButton2Pressed, onEditTerrain, qPressed]);
 
   useEffect(() => {
     // Prevent context menu on right mouse click
@@ -139,7 +144,7 @@ const Terrain = () => {
     terrainBrush.updateMatrixWorld();
     sphereBrush.updateMatrixWorld();
 
-    let resultCSG = evaluator.evaluate(terrainBrush, sphereBrush, SUBTRACTION);
+    let resultCSG = terrainBrush;
 
     // create a cave tunnel
     for (let i = 0; i < cavePoints.length; i++) {
@@ -148,7 +153,7 @@ const Terrain = () => {
       resultCSG = evaluator.evaluate(resultCSG, sphereBrush, SUBTRACTION);
     }
 
-    terrianBrush.current = resultCSG;
+    terrianBrushRef.current = resultCSG;
 
     // helper line
     const lineGeometry = new BufferGeometry().setFromPoints(cavePoints);
@@ -159,9 +164,9 @@ const Terrain = () => {
 
   return (
     <>
-      {terrianBrush?.current && (
+      {terrianBrushRef?.current && (
         <RigidBody key={key} type="fixed" colliders="trimesh">
-          <primitive object={terrianBrush.current} />
+          <primitive object={terrianBrushRef.current} />
         </RigidBody>
       )}
     </>
