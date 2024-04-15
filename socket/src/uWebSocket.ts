@@ -2,6 +2,7 @@ import uWebSocket, { DEDICATED_DECOMPRESSOR } from "uWebSockets.js";
 
 export const startSocket = () => {
   try {
+    const port = Number(process.env.PORT) || 8888;
     const socket = uWebSocket
       .App()
       .ws(`/*`, {
@@ -10,9 +11,9 @@ export const startSocket = () => {
           ws.send(message, isBinary, true);
         },
       })
-      .listen(8888, (listenSocket) => {
+      .listen(port, (listenSocket) => {
         if (listenSocket) {
-          console.log("poly-world uWS listening on port 8888");
+          console.log(`poly-world uWS listening on port ${port}`);
         }
       });
   } catch (e) {
