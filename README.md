@@ -10,3 +10,21 @@ A simple world to have fun in.
 - `npm i`
 
 - `npm run dev`
+
+### Backend uWebSocket
+
+- `npm run dev-socket` (local dev)
+- `npm run build-socket`
+- `npm run start-socket` (production)
+
+Local dev runs on http://localhost:8888
+
+Production hosted on: https://poly-world-75fe1d48fc05.herokuapp.com/
+
+#### Deploy to Heroku
+
+`heroku login`
+
+`git push heroku main`
+
+`heroku logs --tail`
