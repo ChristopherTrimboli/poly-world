@@ -61,7 +61,6 @@ const SceneContent = () => {
         {/* player */}
         <Ecctrl
           camCollision={false}
-          wakeUpDelay={2000}
           disableExternalRayForces
         >
           <pointLight intensity={2} />
