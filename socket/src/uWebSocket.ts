@@ -1,4 +1,5 @@
 import uWebSocket, { DEDICATED_DECOMPRESSOR } from "uWebSockets.js";
+import process from "process";
 
 export const startSocket = () => {
   try {
