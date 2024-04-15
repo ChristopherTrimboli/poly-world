@@ -26,7 +26,6 @@
     "simplex-noise": "^4.0.1",
     "three": "^0.163.0",
     "three-bvh-csg": "^0.0.16",
-    "typescript": "^5.4.5",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.43.0",
     "zustand": "^4.5.2"
   },
@@ -37,7 +36,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "nodemon": "^3.1.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": "21.x"
