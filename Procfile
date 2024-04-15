@@ -1,1 +1,1 @@
-web: npm run build-socket && npm run start-socket
+web: npm run start-socket

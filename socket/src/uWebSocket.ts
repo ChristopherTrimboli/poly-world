@@ -1,5 +1,6 @@
 import uWebSocket, { DEDICATED_DECOMPRESSOR } from "uWebSockets.js";
-import process from "process";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const startSocket = () => {
   try {
