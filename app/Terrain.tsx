@@ -32,7 +32,13 @@ const Terrain = () => {
 
   useEffect(() => {
     const loadChunks = async () => {
-      const db = await openDB("polyworld", 1);
+      const db = await openDB("polyworld", 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains("chunks")) {
+            db.createObjectStore("chunks");
+          }
+        },
+      });
 
       for (let x = 0; x < gridSize; x++) {
         for (let z = 0; z < gridSize; z++) {
