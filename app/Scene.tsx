@@ -13,7 +13,7 @@ import {
 import { Suspense } from "react";
 import { Euler, Vector3 } from "three";
 import { Physics } from "@react-three/rapier";
-import Ecctrl from "ecctrl";
+import Ecctrl from "../ecctrl/Ecctrl";
 import Tree from "./Tree";
 import Terrain from "./Terrain";
 
@@ -59,7 +59,11 @@ const SceneContent = () => {
         </Suspense>
 
         {/* player */}
-        <Ecctrl camCollision={false}>
+        <Ecctrl
+          camCollision={false}
+          wakeUpDelay={2000}
+          disableExternalRayForces
+        >
           <pointLight intensity={2} />
           <Capsule args={[0.3, 0.5, 4, 12]}>
             <meshPhongMaterial
@@ -99,7 +103,7 @@ const Scene = () => {
   return (
     <Canvas
       performance={{ min: 0.8, max: 1, debounce: 200 }}
-      gl={{ antialias: false }}
+      gl={{ antialias: true }}
     >
       <KeyboardControls map={keyboardMap}>
         <SceneContent />
