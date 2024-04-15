@@ -1,6 +1,6 @@
 "use client";
 
-import { EcctrlJoystick } from "ecctrl";
+import { EcctrlJoystick } from "../ecctrl/Ecctrl";
 import { useEffect, useState } from "react";
 
 const Overlay = () => {
