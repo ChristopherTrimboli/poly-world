@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { SocketContext } from "./SocketContext";
+import { SocketMessageType } from "../../socket/types";
 
 const SocketProvider = ({ children }) => {
-  const socket = useRef<WebSocket>(null);
+  const socket = useRef<WebSocket & { id: number }>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (socket.current) return;
 
-    const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL);
+    const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL) as WebSocket & {
+      id: number;
+    };
+
+    ws.id = null;
 
     socket.current = ws;
 
@@ -17,8 +22,23 @@ const SocketProvider = ({ children }) => {
       setIsConnected(true);
     };
 
+    const reader = new FileReader();
+
+    reader.onload = function () {
+      const [type, param1, param2, param3, param4] = new Float32Array(
+        reader.result as ArrayBuffer
+      );
+      if (type === SocketMessageType.UserJoin) {
+        console.log("userJoin", param1, param2);
+        socket.current.id = param1;
+      }
+    };
+
     ws.onmessage = (event) => {
-      console.log("message", event.data);
+      if (event.data instanceof Blob && reader.readyState === reader.EMPTY) {
+        reader.readAsArrayBuffer(event.data);
+        return;
+      }
     };
 
     ws.onclose = () => {

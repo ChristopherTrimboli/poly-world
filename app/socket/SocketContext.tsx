@@ -1,3 +1,5 @@
 import { createContext } from "react";
 
-export const SocketContext = createContext<WebSocket | null>(null);
+export const SocketContext = createContext<(WebSocket & { id: number }) | null>(
+  null
+);

@@ -10,13 +10,15 @@ import {
   Stars,
   StatsGl,
 } from "@react-three/drei";
-import { Suspense, useCallback, useContext } from "react";
-import { Euler, Vector3 } from "three";
+import { Suspense, useCallback, useContext, useRef } from "react";
+import { Euler, Mesh, Vector3 } from "three";
 import { Physics } from "@react-three/rapier";
 import Ecctrl from "../ecctrl/Ecctrl";
 import Tree from "./Tree";
 import Terrain from "./Terrain";
 import { SocketContext } from "./socket/SocketContext";
+import { SocketMessageType } from "@/socket/types";
+import UsersManager from "./UsersManager";
 
 // types for keyboard controls
 export enum Controls {
@@ -51,27 +53,32 @@ const keyboardMap: KeyboardControlsEntry<Controls>[] = [
 
 const SceneContent = () => {
   const socket = useContext(SocketContext);
+  const userRef = useRef<Mesh>();
+  const tickCounter = useRef(0);
 
   const sendPosition = useCallback(
     (position: Vector3) => {
-      socket?.send(
-        JSON.stringify({
-          type: "position",
-          position: { x: position.x, y: position.y, z: position.z },
-        })
-      );
+      if (socket?.readyState === WebSocket.OPEN) {
+        const buffer = new Float32Array([
+          SocketMessageType.UserPosition,
+          socket.id,
+          position.x,
+          position.y,
+          position.z,
+        ]).buffer;
+
+        socket.send(buffer);
+      }
     },
     [socket]
   );
 
-  let tickCounter = 0;
+  useFrame(() => {
+    tickCounter.current += 1;
 
-  useFrame(({ camera }) => {
-    tickCounter += 1;
-
-    if (tickCounter >= 60) {
-      sendPosition(camera.position);
-      tickCounter = 0;
+    if (tickCounter.current >= 2 && userRef?.current) {
+      sendPosition(userRef.current.getWorldPosition(new Vector3()));
+      tickCounter.current = 0;
     }
   });
 
@@ -87,7 +94,7 @@ const SceneContent = () => {
         {/* player */}
         <Ecctrl camCollision={false} disableExternalRayForces>
           <pointLight intensity={2} />
-          <Capsule args={[0.3, 0.5, 4, 12]}>
+          <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef}>
             <meshPhongMaterial
               color="red"
               attach="material"
@@ -96,6 +103,8 @@ const SceneContent = () => {
             />
           </Capsule>
         </Ecctrl>
+
+        <UsersManager />
 
         {/* trees */}
         <Tree position={new Vector3(10, 0, 0)} rotation={new Euler()} />
