@@ -92,6 +92,7 @@ const UsersManager = () => {
             colliders="trimesh"
           >
             <Capsule args={[0.3, 0.5, 4, 12]}>
+              <pointLight intensity={2} />
               <meshPhongMaterial
                 color={color}
                 attach="material"
