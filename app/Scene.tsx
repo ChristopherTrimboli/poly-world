@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
   AdaptiveDpr,
   AdaptiveEvents,
@@ -10,12 +10,13 @@ import {
   Stars,
   StatsGl,
 } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useCallback, useContext } from "react";
 import { Euler, Vector3 } from "three";
 import { Physics } from "@react-three/rapier";
 import Ecctrl from "../ecctrl/Ecctrl";
 import Tree from "./Tree";
 import Terrain from "./Terrain";
+import { SocketContext } from "./socket/SocketContext";
 
 // types for keyboard controls
 export enum Controls {
@@ -49,6 +50,31 @@ const keyboardMap: KeyboardControlsEntry<Controls>[] = [
 ];
 
 const SceneContent = () => {
+  const socket = useContext(SocketContext);
+
+  const sendPosition = useCallback(
+    (position: Vector3) => {
+      socket?.send(
+        JSON.stringify({
+          type: "position",
+          position: { x: position.x, y: position.y, z: position.z },
+        })
+      );
+    },
+    [socket]
+  );
+
+  let tickCounter = 0;
+
+  useFrame(({ camera }) => {
+    tickCounter += 1;
+
+    if (tickCounter >= 60) {
+      sendPosition(camera.position);
+      tickCounter = 0;
+    }
+  });
+
   return (
     <group>
       <Stars />
@@ -59,10 +85,7 @@ const SceneContent = () => {
         </Suspense>
 
         {/* player */}
-        <Ecctrl
-          camCollision={false}
-          disableExternalRayForces
-        >
+        <Ecctrl camCollision={false} disableExternalRayForces>
           <pointLight intensity={2} />
           <Capsule args={[0.3, 0.5, 4, 12]}>
             <meshPhongMaterial

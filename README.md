@@ -17,7 +17,7 @@ A simple world to have fun in.
 - `npm run build-socket`
 - `npm run start-socket` (production)
 
-Local dev runs on http://localhost:8888
+Local dev runs on http://localhost:9001
 
 Production hosted on: https://poly-world-75fe1d48fc05.herokuapp.com/
 
