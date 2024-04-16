@@ -27,6 +27,22 @@ const UsersManager = () => {
               ...prev,
               { id: param1, position: new Vector3(0, 1, 0), color: param2 },
             ]);
+          } else if (type === SocketMessageType.UserList) {
+            const data = new Float32Array(reader.result as ArrayBuffer);
+
+            const users = [];
+            for (let i = 1; i < data.length; i += 5) {
+              const id = data[i];
+              const color = data[i + 1];
+              const position = new Vector3(
+                data[i + 2],
+                data[i + 3],
+                data[i + 4]
+              );
+              users.push({ id, color, position });
+            }
+            console.log("users", users);
+            setUsers(users);
           } else if (type === SocketMessageType.UserPosition) {
             setUsers((prev) => {
               const userIndex = prev.findIndex((user) => user.id === param1);

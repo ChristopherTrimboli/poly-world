@@ -22,22 +22,26 @@ const SocketProvider = ({ children }) => {
       setIsConnected(true);
     };
 
-    const reader = new FileReader();
-
-    reader.onload = function () {
-      const [type, param1, param2, param3, param4] = new Float32Array(
-        reader.result as ArrayBuffer
-      );
-      if (type === SocketMessageType.UserJoin) {
-        console.log("userJoin", param1, param2);
-        socket.current.id = param1;
-      }
-    };
-
     ws.onmessage = (event) => {
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const [type, param1, param2, param3, param4] = new Float32Array(
+          reader.result as ArrayBuffer
+        );
+        if (type === SocketMessageType.UserJoin) {
+          console.log("userJoin", param1, param2);
+          socket.current.id = param1;
+          setTimeout(() => {
+            socket.current.send(
+              new Float32Array([SocketMessageType.UserList]).buffer
+            );
+          }, 1000);
+        }
+      };
+
       if (event.data instanceof Blob && reader.readyState === reader.EMPTY) {
         reader.readAsArrayBuffer(event.data);
-        return;
       }
     };
 
