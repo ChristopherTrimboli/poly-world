@@ -1,15 +1,20 @@
 import { SocketMessageType } from "@/socket/types";
 import { Capsule } from "@react-three/drei";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { Vector3 } from "three";
 import { SocketContext } from "./socket/SocketContext";
 import { RigidBody } from "@react-three/rapier";
 
+interface User {
+  id: number;
+  position: Vector3;
+  color: number;
+}
+
 const UsersManager = () => {
   const socket = useContext(SocketContext);
-  const [users, setUsers] = useState<
-    { id: number; position: Vector3; color: number }[]
-  >([]);
+  const usersRef = useRef<User[]>([]);
+  const [renderTrigger, setRenderTrigger] = useState(0);
 
   useEffect(() => {
     if (socket?.readyState === WebSocket.OPEN) {
@@ -23,10 +28,14 @@ const UsersManager = () => {
 
           if (type === SocketMessageType.UserJoin) {
             console.log("userJoin", param1, param2);
-            setUsers((prev) => [
-              ...prev,
-              { id: param1, position: new Vector3(0, 1, 0), color: param2 },
-            ]);
+            usersRef.current = [
+              ...usersRef.current,
+              {
+                id: param1,
+                position: new Vector3(0, 1, 0),
+                color: Math.random() * 0xffffff,
+              },
+            ];
           } else if (type === SocketMessageType.UserList) {
             const data = new Float32Array(reader.result as ArrayBuffer);
 
@@ -42,26 +51,25 @@ const UsersManager = () => {
               users.push({ id, color, position });
             }
             console.log("users", users);
-            setUsers(users);
+            usersRef.current = users;
           } else if (type === SocketMessageType.UserPosition) {
-            setUsers((prev) => {
-              const userIndex = prev.findIndex((user) => user.id === param1);
-              if (userIndex >= 0) {
-                prev[userIndex].position = new Vector3(param2, param3, param4);
-              } else {
-                prev.push({
-                  id: param1,
-                  position: new Vector3(param2, param3, param4),
-                  color: Math.random() * 0xffffff,
-                });
-              }
-
-              return [...prev];
-            });
+            const userIndex = usersRef.current.findIndex(
+              (user) => user.id === param1
+            );
+            if (userIndex >= 0) {
+              usersRef.current[userIndex].position = new Vector3(
+                param2,
+                param3,
+                param4
+              );
+            }
           } else if (type === SocketMessageType.UserLeave) {
             console.log("userLeave", param1);
-            setUsers((prev) => prev.filter((user) => user.id !== param1));
+            usersRef.current = usersRef.current.filter(
+              (user) => user.id !== param1
+            );
           }
+          setRenderTrigger((prev) => prev + 1); // Trigger a re-render
         };
 
         if (event.data instanceof Blob) {
@@ -71,17 +79,16 @@ const UsersManager = () => {
         }
       };
     }
-  }, [socket, users]);
+  }, [socket]);
 
   return (
     <>
-      {
-        // other users
-        users?.map(({ id, position, color }) => (
+      {usersRef?.current.map(({ id, position, color }) => {
+        return (
           <RigidBody
             key={id}
             type="fixed"
-            position={position}
+            position={position.toArray()}
             colliders="trimesh"
           >
             <Capsule args={[0.3, 0.5, 4, 12]}>
@@ -93,8 +100,8 @@ const UsersManager = () => {
               />
             </Capsule>
           </RigidBody>
-        ))
-      }
+        );
+      })}
     </>
   );
 };

@@ -1,24 +1,21 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   AdaptiveDpr,
   AdaptiveEvents,
-  Capsule,
   KeyboardControls,
   KeyboardControlsEntry,
   Stars,
   StatsGl,
 } from "@react-three/drei";
-import { Suspense, useCallback, useContext, useRef } from "react";
-import { Euler, Mesh, Vector3 } from "three";
+import { Suspense } from "react";
+import { Euler, Vector3 } from "three";
 import { Physics } from "@react-three/rapier";
-import Ecctrl from "../ecctrl/Ecctrl";
 import Tree from "./Tree";
 import Terrain from "./Terrain";
-import { SocketContext } from "./socket/SocketContext";
-import { SocketMessageType } from "@/socket/types";
 import UsersManager from "./UsersManager";
+import Character from "./Character";
 
 // types for keyboard controls
 export enum Controls {
@@ -52,57 +49,15 @@ const keyboardMap: KeyboardControlsEntry<Controls>[] = [
 ];
 
 const SceneContent = () => {
-  const socket = useContext(SocketContext);
-  const userRef = useRef<Mesh>();
-  const tickCounter = useRef(0);
-
-  const sendPosition = useCallback(
-    (position: Vector3) => {
-      if (socket?.readyState === WebSocket.OPEN) {
-        const buffer = new Float32Array([
-          SocketMessageType.UserPosition,
-          socket.id,
-          position.x,
-          position.y,
-          position.z,
-        ]).buffer;
-
-        socket.send(buffer);
-      }
-    },
-    [socket]
-  );
-
-  useFrame(() => {
-    tickCounter.current += 1;
-
-    if (tickCounter.current >= 2 && userRef?.current) {
-      sendPosition(userRef.current.getWorldPosition(new Vector3()));
-      tickCounter.current = 0;
-    }
-  });
-
   return (
     <group>
       <Stars />
       <Physics>
-        {/* terrain */}
         <Suspense fallback={null}>
           <Terrain />
         </Suspense>
 
-        {/* player */}
-        <Ecctrl camCollision={false} disableExternalRayForces>
-          <pointLight intensity={2} />
-          <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef}>
-            <meshPhongMaterial
-              color="red"
-              attach="material"
-              shininess={5}
-              flatShading
-            />
-          </Capsule>
-        </Ecctrl>
+        <Character />
 
         <UsersManager />
 

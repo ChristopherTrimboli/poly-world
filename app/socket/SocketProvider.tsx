@@ -29,8 +29,8 @@ const SocketProvider = ({ children }) => {
         const [type, param1, param2, param3, param4] = new Float32Array(
           reader.result as ArrayBuffer
         );
-        if (type === SocketMessageType.UserJoin) {
-          console.log("userJoin", param1, param2);
+        if (type === SocketMessageType.Join) {
+          console.log("join", param1, param2);
           socket.current.id = param1;
           setTimeout(() => {
             socket.current.send(

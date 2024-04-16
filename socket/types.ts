@@ -1,7 +1,8 @@
 export enum SocketMessageType {
-  UserJoin = 0, // type, id, color
-  UserLeave = 1, // type, id
-  UserList = 2, // type, {id, x, y, z, color}[]
-  UserPosition = 3, // type, id, x, y, z
-  UserRotation = 4, // type, id, x, y, z
+  Join = 0, // type, id, color, x, y, z
+  UserJoin = 1, // type, id, color
+  UserLeave = 2, // type, id
+  UserList = 3, // type, {id, x, y, z, color}[]
+  UserPosition = 4, // type, id, x, y, z
+  UserRotation = 5, // type, id, x, y, z
 }

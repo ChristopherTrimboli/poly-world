@@ -41,6 +41,9 @@ export const startSocket = () => {
                 ...user,
                 position: [param2, param3, param4],
               });
+              console.log(
+                `User ${param1} moved to ${param2}, ${param3}, ${param4}`
+              );
             } else {
               console.log("User not found");
             }
@@ -68,7 +71,7 @@ export const startSocket = () => {
           const newId = idCounter++;
           const color = Math.random() * 0xffffff;
           ws.send(
-            new Float32Array([SocketMessageType.UserJoin, newId, color]).buffer,
+            new Float32Array([SocketMessageType.Join, newId, color]).buffer,
             true
           );
           users.set(newId, {
@@ -78,6 +81,19 @@ export const startSocket = () => {
             position: [0, 0, 0],
             rotation: [0, 0, 0],
           });
+          setTimeout(() => {
+            users.forEach((user) => {
+              if (user.socket !== ws) {
+                console.log(`Sending user ${user.id} to new user ${newId}`);
+                user.socket.send(
+                  new Float32Array([SocketMessageType.UserJoin, newId, color])
+                    .buffer,
+                  true
+                );
+              }
+            });
+          }, 1000);
+
           console.log(`WebSocket connected. ID: ${newId}`);
         },
         close: (ws, code, message) => {
