@@ -9,13 +9,15 @@ A simple world to have fun in.
 - `npm i`
 - `npm run dev`
 
+http://localhost:3000
+
 #### Backend uWebSocket
 
 - `npm run dev-socket` (local dev)
 - `npm run build-socket`
 - `npm run start-socket` (production)
 
-Local dev runs on `ws://localhost:9001`
+Local dev runs on: `ws://localhost:9001`
 
 Production hosted on: `wss://poly-world-75fe1d48fc05.herokuapp.com`
 
