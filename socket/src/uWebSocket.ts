@@ -41,7 +41,6 @@ export const startSocket = () => {
                 ...user,
                 postion: [param2, param3, param4],
               });
-              console.log("userPosition", param1, param2, param3, param4);
             } else {
               console.log("User not found");
             }
