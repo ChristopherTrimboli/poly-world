@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -22,7 +22,7 @@
     "ecctrl": "^1.0.75",
     "idb": "^8.0.0",
     "leva": "^0.9.35",
-    "next": "14.1.4",
+    "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18",
     "simplex-noise": "^4.0.1",
@@ -36,7 +36,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.1.4",
+    "eslint-config-next": "14.2.2",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"

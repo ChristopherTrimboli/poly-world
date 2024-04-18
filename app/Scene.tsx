@@ -16,6 +16,7 @@ import Tree from "./Tree";
 import Terrain from "./Terrain";
 import UsersManager from "./UsersManager";
 import Character from "./Character";
+import Thruster from "./Thruster";
 
 // types for keyboard controls
 export enum Controls {
@@ -60,6 +61,8 @@ const SceneContent = () => {
         <Character />
 
         <UsersManager />
+
+        <Thruster />
 
         {/* trees */}
         <Tree position={new Vector3(10, 0, 0)} rotation={new Euler()} />
