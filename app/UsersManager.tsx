@@ -6,8 +6,7 @@ import User, { UserProps } from "./User";
 
 const UsersManager = () => {
   const socket = useContext(SocketContext);
-  const usersRef = useRef<UserProps[]>([]);
-  const [renderTrigger, setRenderTrigger] = useState(0);
+  const [users, setUsers] = useState<UserProps[]>([]);
 
   useEffect(() => {
     if (socket?.readyState === WebSocket.OPEN) {
@@ -21,14 +20,14 @@ const UsersManager = () => {
 
           if (type === SocketMessageType.UserJoin) {
             console.log("userJoin", param1, param2);
-            usersRef.current = [
-              ...usersRef.current,
+            setUsers((prev) => [
+              ...prev,
               {
                 id: param1,
                 position: new Vector3(0, 1, 0),
-                color: Math.random() * 0xffffff,
+                color: param2,
               },
-            ];
+            ]);
           } else if (type === SocketMessageType.UserList) {
             const data = new Float32Array(reader.result as ArrayBuffer);
 
@@ -41,28 +40,35 @@ const UsersManager = () => {
                 data[i + 3],
                 data[i + 4]
               );
-              users.push({ id, color, position });
+              setUsers((prev) => [
+                ...prev,
+                {
+                  id,
+                  position,
+                  color,
+                },
+              ]);
             }
             console.log("users", users);
-            usersRef.current = users;
           } else if (type === SocketMessageType.UserPosition) {
-            const userIndex = usersRef.current.findIndex(
-              (user) => user.id === param1
-            );
+            const userIndex = users.findIndex((user) => user.id === param1);
             if (userIndex >= 0) {
-              usersRef.current[userIndex].position = new Vector3(
-                param2,
-                param3,
-                param4
-              );
+              setUsers((prev) => {
+                const newUsers = [...prev];
+                console.log(newUsers[userIndex]);
+                newUsers[userIndex].position = new Vector3(
+                  param2,
+                  param3,
+                  param4
+                );
+                return newUsers;
+              });
             }
           } else if (type === SocketMessageType.UserLeave) {
             console.log("userLeave", param1);
-            usersRef.current = usersRef.current.filter(
-              (user) => user.id !== param1
-            );
+
+            setUsers((prev) => prev.filter((user) => user.id !== param1));
           }
-          setRenderTrigger((prev) => prev + 1); // Trigger a re-render
         };
 
         if (event.data instanceof Blob) {
@@ -72,11 +78,11 @@ const UsersManager = () => {
         }
       };
     }
-  }, [socket]);
+  }, [socket, users]);
 
   return (
     <>
-      {usersRef?.current.map(({ id, position, color }) => {
+      {users.map(({ id, position, color }) => {
         return <User key={id} id={id} position={position} color={color} />;
       })}
     </>
