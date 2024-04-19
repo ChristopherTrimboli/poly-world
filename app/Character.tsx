@@ -65,7 +65,7 @@ const Character = () => {
       <pointLight intensity={2} />
       <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef}>
         <meshPhongMaterial
-          color="red"
+          color={socket?.color || "red"}
           attach="material"
           shininess={5}
           flatShading

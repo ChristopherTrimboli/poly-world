@@ -55,7 +55,6 @@ const UsersManager = () => {
             if (userIndex >= 0) {
               setUsers((prev) => {
                 const newUsers = [...prev];
-                console.log(newUsers[userIndex]);
                 newUsers[userIndex].position = new Vector3(
                   param2,
                   param3,
@@ -66,7 +65,6 @@ const UsersManager = () => {
             }
           } else if (type === SocketMessageType.UserLeave) {
             console.log("userLeave", param1);
-
             setUsers((prev) => prev.filter((user) => user.id !== param1));
           }
         };

@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { SocketContext } from "./SocketContext";
+import { SocketContext, WebSocketWithData } from "./SocketContext";
 import { SocketMessageType } from "../../socket/types";
 
 const SocketProvider = ({ children }) => {
-  const socket = useRef<WebSocket & { id: number }>(null);
+  const socket = useRef<WebSocketWithData>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (socket.current) return;
 
-    const ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL) as WebSocket & {
-      id: number;
-    };
+    const ws = new WebSocket(
+      process.env.NEXT_PUBLIC_WS_URL
+    ) as WebSocketWithData;
 
     ws.id = null;
+    ws.color = null;
 
     socket.current = ws;
 
@@ -32,6 +33,7 @@ const SocketProvider = ({ children }) => {
         if (type === SocketMessageType.Join) {
           console.log("join", param1, param2);
           socket.current.id = param1;
+          socket.current.color = param2;
           setTimeout(() => {
             socket.current.send(
               new Float32Array([SocketMessageType.UserList]).buffer

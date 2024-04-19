@@ -77,7 +77,7 @@ export const startSocket = () => {
           users.set(newId, {
             id: newId,
             socket: ws,
-            color: Math.random() * 0xffffff,
+            color,
             position: [0, 0, 0],
             rotation: [0, 0, 0],
           });
