@@ -9,7 +9,7 @@ import {
   Stars,
   StatsGl,
 } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Euler, Vector3 } from "three";
 import { Physics } from "@react-three/rapier";
 import Tree from "./Tree";
@@ -89,6 +89,19 @@ const SceneContent = () => {
 };
 
 const Scene = () => {
+  useEffect(() => {
+    // Prevent context menu on right mouse click
+    const preventDefaultOnContextMenu = (event: any) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener("contextmenu", preventDefaultOnContextMenu);
+
+    return () => {
+      window.removeEventListener("contextmenu", preventDefaultOnContextMenu);
+    };
+  }, []);
+
   return (
     <Canvas
       performance={{ min: 0.8, max: 1, debounce: 200 }}

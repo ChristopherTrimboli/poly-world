@@ -93,19 +93,6 @@ const Terrain = () => {
     [chunkRefs]
   );
 
-  useEffect(() => {
-    // Prevent context menu on right mouse click
-    const preventDefaultOnContextMenu = (event: any) => {
-      event.preventDefault();
-    };
-
-    window.addEventListener("contextmenu", preventDefaultOnContextMenu);
-
-    return () => {
-      window.removeEventListener("contextmenu", preventDefaultOnContextMenu);
-    };
-  }, []);
-
   return (
     <>
       {chunkRefs.map((row, x) => {
