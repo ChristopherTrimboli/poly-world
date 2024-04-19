@@ -33,8 +33,8 @@ const Character = () => {
     const now = performance.now();
     const delta = now - lastUpdate.current;
 
-    // Send position every 10ms
-    if (delta >= 10 && userRef?.current) {
+    // Send position every 50ms
+    if (delta >= 50 && userRef?.current) {
       const position = userRef.current.getWorldPosition(new Vector3());
       const fixedPosition = {
         x: position.x.toFixed(2),

@@ -1,19 +1,12 @@
 import { SocketMessageType } from "@/socket/types";
-import { Capsule } from "@react-three/drei";
 import { useContext, useState, useEffect, useRef } from "react";
 import { Vector3 } from "three";
 import { SocketContext } from "./socket/SocketContext";
-import { RigidBody } from "@react-three/rapier";
-
-interface User {
-  id: number;
-  position: Vector3;
-  color: number;
-}
+import User, { UserProps } from "./User";
 
 const UsersManager = () => {
   const socket = useContext(SocketContext);
-  const usersRef = useRef<User[]>([]);
+  const usersRef = useRef<UserProps[]>([]);
   const [renderTrigger, setRenderTrigger] = useState(0);
 
   useEffect(() => {
@@ -84,24 +77,7 @@ const UsersManager = () => {
   return (
     <>
       {usersRef?.current.map(({ id, position, color }) => {
-        return (
-          <RigidBody
-            key={id}
-            type="fixed"
-            position={position.toArray()}
-            colliders="trimesh"
-          >
-            <Capsule args={[0.3, 0.5, 4, 12]}>
-              <pointLight intensity={2} />
-              <meshPhongMaterial
-                color={color}
-                attach="material"
-                shininess={5}
-                flatShading
-              />
-            </Capsule>
-          </RigidBody>
-        );
+        return <User key={id} id={id} position={position} color={color} />;
       })}
     </>
   );
