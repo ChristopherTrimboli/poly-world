@@ -17,6 +17,7 @@ import Terrain from "./Terrain";
 import UsersManager from "./UsersManager";
 import Character from "./Character";
 import Thruster from "./Thruster";
+import Ufo from "./Ufo";
 
 // types for keyboard controls
 export enum Controls {
@@ -64,6 +65,8 @@ const SceneContent = () => {
 
         <Thruster />
 
+        <Ufo position={new Vector3(5, 2, 20)} />
+
         {/* trees */}
         <Tree position={new Vector3(10, 0, 0)} rotation={new Euler()} />
         <Tree position={new Vector3(15, 0, 5)} rotation={new Euler()} />
@@ -73,7 +76,7 @@ const SceneContent = () => {
       {/* lights */}
       <ambientLight intensity={0.05} />
       <directionalLight
-        intensity={1}
+        intensity={0.75}
         castShadow
         shadow-mapSize-height={1024}
         shadow-mapSize-width={1024}

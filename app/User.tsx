@@ -1,4 +1,4 @@
-import { animated, useSpring } from "@react-spring/three";
+import { useSpring } from "@react-spring/three";
 import { Capsule } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";

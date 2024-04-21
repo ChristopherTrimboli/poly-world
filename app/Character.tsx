@@ -63,7 +63,7 @@ const Character = () => {
   return (
     <Ecctrl camCollision={false} disableExternalRayForces>
       <pointLight intensity={2} />
-      <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef}>
+      <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef} castShadow receiveShadow>
         <meshPhongMaterial
           color={socket?.color || "red"}
           attach="material"

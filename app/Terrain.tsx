@@ -103,7 +103,12 @@ const Terrain = () => {
               colliders="trimesh"
               key={chunkKeys.current[x + z]}
             >
-              <primitive object={brush} onClick={(e) => onEditChunk(e, x, z)} />
+              <primitive
+                object={brush}
+                onClick={(e) => onEditChunk(e, x, z)}
+                receiveShadow
+                castShadow
+              />
             </RigidBody>
           );
         });
