@@ -1,6 +1,13 @@
+import { ThreeEvent } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { BoxGeometry, MeshPhongMaterial, SphereGeometry } from "three";
+import {
+  BoxGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  SphereGeometry,
+} from "three";
 import { Brush, SUBTRACTION, Evaluator } from "three-bvh-csg";
 
 // sphere brush for CSG operations
@@ -14,6 +21,12 @@ const sphereMaterial = new MeshPhongMaterial({
 const sphereBrush = new Brush(sphereGeo);
 sphereBrush.material = sphereMaterial;
 
+const wireframeMaterial = new MeshBasicMaterial({
+  color: 0x00ff00,
+  wireframe: true,
+});
+const previewMesh = new Mesh(sphereBrush.geometry, wireframeMaterial);
+
 const evaluator = new Evaluator();
 
 const gridSize = 10;
@@ -22,6 +35,8 @@ const gridSpacing = 10;
 const Terrain = () => {
   const [chunkRefs, setChunkRefs] = useState<Brush[][]>([]);
   const chunkKeys = useRef<string[]>([]);
+
+  const previewMeshRef = useRef<Mesh>();
 
   useEffect(() => {
     const loadChunks = async () => {
@@ -68,7 +83,7 @@ const Terrain = () => {
   }, []);
 
   const onEditChunk = useCallback(
-    async (e, x: number, z: number) => {
+    async (e: ThreeEvent<Mesh>, x: number, z: number) => {
       e.stopPropagation();
       const chunkRef = chunkRefs[x][z];
       chunkRef.updateMatrixWorld();
@@ -93,6 +108,12 @@ const Terrain = () => {
     [chunkRefs]
   );
 
+  const previewEdit = useCallback((e: ThreeEvent<Mesh>) => {
+    e.stopPropagation();
+    const point = e.point;
+    previewMeshRef.current.position.copy(point);
+  }, []);
+
   return (
     <>
       {chunkRefs.map((row, x) => {
@@ -106,6 +127,7 @@ const Terrain = () => {
               <primitive
                 object={brush}
                 onClick={(e) => onEditChunk(e, x, z)}
+                onPointerMove={previewEdit}
                 receiveShadow
                 castShadow
               />
@@ -113,6 +135,7 @@ const Terrain = () => {
           );
         });
       })}
+      <primitive object={previewMesh} ref={previewMeshRef} />
     </>
   );
 };
