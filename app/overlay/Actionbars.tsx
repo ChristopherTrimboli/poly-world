@@ -1,31 +1,110 @@
 import { useEffect, useState } from "react";
-import { Box, Stack } from "@mui/material";
-import { useKeyboardControls } from "@react-three/drei";
+import { Box, Stack, Typography } from "@mui/material";
+import { Circle, useKeyboardControls } from "@react-three/drei";
 import { Controls } from "../types";
+import { Canvas } from "@react-three/fiber";
 
-const actionBarsConfig = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const actionBarsConfig = [
+  {
+    label: "1",
+    children: (
+      <Canvas>
+        <ambientLight intensity={1.75} />
+        <Circle args={[3, 6, 6]}>
+          <meshPhongMaterial
+            attach="material"
+            color="tan"
+            flatShading
+            specular={0x222222}
+            shininess={5}
+            wireframe
+          />
+        </Circle>
+      </Canvas>
+    ),
+  },
+  {
+    label: "2",
+    children: null,
+  },
+  {
+    label: "3",
+    children: null,
+  },
+  {
+    label: "4",
+    children: null,
+  },
+  {
+    label: "5",
+    children: null,
+  },
+  {
+    label: "6",
+    children: null,
+  },
+  {
+    label: "7",
+    children: null,
+  },
+  {
+    label: "8",
+    children: null,
+  },
+  {
+    label: "9",
+    children: null,
+  },
+  {
+    label: "0",
+    children: null,
+  },
+];
 
-const ActionBar = ({ children, onClick, isActive }) => {
+const ActionBar = ({ children, label, onClick, isActive }) => {
   return (
     <Box
       sx={{
-        height: 50,
-        width: 50,
-        padding: 1,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        height: 60,
+        width: 60,
+        backgroundColor: `${
+          isActive ? "rgba(0, 0, 0, 0.2)" : "rgba(0, 0, 0, 0.1)"
+        }`,
         backdropFilter: "blur(10px)",
-        border: `1px solid ${isActive ? "white" : "transparent"}`,
-        color: `${isActive ? "white" : "rgba(255, 255, 255, 0.5)"}`,
-      }}    
+        border: `2px solid ${
+          isActive ? "rgba(255, 255, 255, 0.3)" : "transparent"
+        }`,
+        color: `${
+          isActive ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)"
+        }`,
+      }}
       onClick={onClick}
     >
-      {children}
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <Typography
+          variant="body1"
+          sx={{
+            position: "absolute",
+            pl: 0.5,
+            fontSize: "0.8rem",
+          }}
+        >
+          {label}
+        </Typography>
+        {children}
+      </Box>
     </Box>
   );
 };
 
 const Actionbars = () => {
-  const [activeBar, setActiveBar] = useState(1);
+  const [activeBar, setActiveBar] = useState<string>("1");
 
   const action1Pressed = useKeyboardControls<Controls>(
     (state) => state.action1
@@ -59,16 +138,16 @@ const Actionbars = () => {
   );
 
   useEffect(() => {
-    if (action1Pressed) return setActiveBar(1);
-    if (action2Pressed) return setActiveBar(2);
-    if (action3Pressed) return setActiveBar(3);
-    if (action4Pressed) return setActiveBar(4);
-    if (action5Pressed) return setActiveBar(5);
-    if (action6Pressed) return setActiveBar(6);
-    if (action7Pressed) return setActiveBar(7);
-    if (action8Pressed) return setActiveBar(8);
-    if (action9Pressed) return setActiveBar(9);
-    if (action0Pressed) return setActiveBar(0);
+    if (action1Pressed) return setActiveBar("1");
+    if (action2Pressed) return setActiveBar("2");
+    if (action3Pressed) return setActiveBar("3");
+    if (action4Pressed) return setActiveBar("4");
+    if (action5Pressed) return setActiveBar("5");
+    if (action6Pressed) return setActiveBar("6");
+    if (action7Pressed) return setActiveBar("7");
+    if (action8Pressed) return setActiveBar("8");
+    if (action9Pressed) return setActiveBar("9");
+    if (action0Pressed) return setActiveBar("0");
   }, [
     action1Pressed,
     action2Pressed,
@@ -96,13 +175,14 @@ const Actionbars = () => {
       }}
     >
       <Stack direction="row" spacing={1}>
-        {actionBarsConfig.map((bar) => (
+        {actionBarsConfig.map(({ label, children }) => (
           <ActionBar
-            key={bar}
-            isActive={activeBar === bar}
-            onClick={() => setActiveBar(bar)}
+            key={label}
+            label={label}
+            isActive={activeBar === label}
+            onClick={() => setActiveBar(label)}
           >
-            {bar}
+            {children}
           </ActionBar>
         ))}
       </Stack>
