@@ -1,7 +1,8 @@
 "use client";
 
-import { EcctrlJoystick } from "../ecctrl/Ecctrl";
+import { EcctrlJoystick } from "../../ecctrl/Ecctrl";
 import { useEffect, useState } from "react";
+import Actionbars from "./Actionbars";
 
 const Overlay = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -10,7 +11,12 @@ const Overlay = () => {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(window?.navigator?.userAgent));
   }, []);
 
-  return <>{isMobile && <EcctrlJoystick buttonNumber={1} />}</>;
+  return (
+    <>
+      {isMobile && <EcctrlJoystick buttonNumber={1} />}
+      <Actionbars />
+    </>
+  );
 };
 
 export default Overlay;
