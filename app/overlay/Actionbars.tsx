@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import { Circle, useKeyboardControls } from "@react-three/drei";
 import { Controls } from "../types";
 import { Canvas } from "@react-three/fiber";
@@ -7,6 +7,7 @@ import { Canvas } from "@react-three/fiber";
 const actionBarsConfig = [
   {
     label: "1",
+    description: "Sphere Tool",
     children: (
       <Canvas>
         <ambientLight intensity={1.75} />
@@ -61,45 +62,51 @@ const actionBarsConfig = [
   },
 ];
 
-const ActionBar = ({ children, label, onClick, isActive }) => {
+const ActionBar = ({ children, label, description, onClick, isActive }) => {
   return (
-    <Box
-      sx={{
-        height: 60,
-        width: 60,
-        backgroundColor: `${
-          isActive ? "rgba(0, 0, 0, 0.2)" : "rgba(0, 0, 0, 0.1)"
-        }`,
-        backdropFilter: "blur(10px)",
-        border: `2px solid ${
-          isActive ? "rgba(255, 255, 255, 0.3)" : "transparent"
-        }`,
-        color: `${
-          isActive ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)"
-        }`,
-      }}
-      onClick={onClick}
-    >
+    <Tooltip title={description}>
       <Box
         sx={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
+          height: 60,
+          width: 60,
+          transition: "all 0.2s",
+          backgroundColor: `${
+            isActive ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.2)"
+          }`,
+          backdropFilter: "blur(10px)",
+          border: `2px solid ${
+            isActive ? "rgba(255, 255, 255, 0.4)" : "transparent"
+          }`,
+          color: `${
+            isActive ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.2)"
+          }`,
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+          },
         }}
+        onClick={onClick}
       >
-        <Typography
-          variant="body1"
+        <Box
           sx={{
-            position: "absolute",
-            pl: 0.5,
-            fontSize: "0.8rem",
+            position: "relative",
+            width: "100%",
+            height: "100%",
           }}
         >
-          {label}
-        </Typography>
-        {children}
+          <Typography
+            variant="body1"
+            sx={{
+              position: "absolute",
+              pl: 0.5,
+              fontSize: "0.8rem",
+            }}
+          >
+            {label}
+          </Typography>
+          {children}
+        </Box>
       </Box>
-    </Box>
+    </Tooltip>
   );
 };
 
@@ -175,10 +182,11 @@ const Actionbars = () => {
       }}
     >
       <Stack direction="row" spacing={1}>
-        {actionBarsConfig.map(({ label, children }) => (
+        {actionBarsConfig.map(({ label, description, children }) => (
           <ActionBar
             key={label}
             label={label}
+            description={description}
             isActive={activeBar === label}
             onClick={() => setActiveBar(label)}
           >
