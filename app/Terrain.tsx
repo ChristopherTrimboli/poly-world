@@ -24,11 +24,11 @@ const terrainMaterial = new MeshPhongMaterial({
   flatShading: true,
   specular: 0x222222,
 });
-const sphereGeo = new SphereGeometry(2, 6, 6);
+const sphereGeo = new SphereGeometry(1.5, 6, 6);
 const sphereBrush = new Brush(sphereGeo);
 sphereBrush.material = terrainMaterial;
 
-const boxGeo = new BoxGeometry(2, 2, 2);
+const boxGeo = new BoxGeometry(1.5, 1.5, 1.5);
 const boxBrush = new Brush(boxGeo);
 boxBrush.material = terrainMaterial;
 
@@ -41,7 +41,7 @@ const previewBox = new Mesh(boxGeo, wireframeMaterial);
 
 const evaluator = new Evaluator();
 
-const gridSize = 10;
+const gridSize = 20;
 const gridSpacing = 10;
 
 const Terrain = () => {
