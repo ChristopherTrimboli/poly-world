@@ -1,21 +1,27 @@
 import { useContext, useEffect } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
-import { Circle, useKeyboardControls } from "@react-three/drei";
+import { Circle, useKeyboardControls, Box as DreiBox } from "@react-three/drei";
 import { Controls } from "../types";
 import { Canvas } from "@react-three/fiber";
 import { ActionbarContext } from "../context/actionbar/ActionbarContext";
 
-const actionBarsConfig = [
+interface ActionBarConfig {
+  label: string;
+  description?: string;
+  children?: JSX.Element;
+}
+
+const actionBarsConfig: ActionBarConfig[] = [
   {
     label: "1",
     description: "Sphere Tool",
     children: (
       <Canvas>
         <ambientLight intensity={1.75} />
-        <Circle args={[3, 6, 6]}>
+        <Circle args={[2.5, 8, 8]}>
           <meshPhongMaterial
             attach="material"
-            color="tan"
+            color="gold"
             flatShading
             specular={0x222222}
             shininess={5}
@@ -27,39 +33,46 @@ const actionBarsConfig = [
   },
   {
     label: "2",
-    children: null,
+    description: "Box Tool",
+    children: (
+      <Canvas>
+        <ambientLight intensity={1.75} />
+        <DreiBox args={[3, 3, 3]}>
+          <meshPhongMaterial
+            attach="material"
+            color="gold"
+            flatShading
+            specular={0x222222}
+            shininess={5}
+            wireframe
+          />
+        </DreiBox>
+      </Canvas>
+    ),
   },
   {
     label: "3",
-    children: null,
   },
   {
     label: "4",
-    children: null,
   },
   {
     label: "5",
-    children: null,
   },
   {
     label: "6",
-    children: null,
   },
   {
     label: "7",
-    children: null,
   },
   {
     label: "8",
-    children: null,
   },
   {
     label: "9",
-    children: null,
   },
   {
     label: "0",
-    children: null,
   },
 ];
 

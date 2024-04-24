@@ -1,6 +1,13 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+  useMemo,
+} from "react";
 import {
   BoxGeometry,
   Mesh,
@@ -9,23 +16,28 @@ import {
   SphereGeometry,
 } from "three";
 import { Brush, SUBTRACTION, Evaluator } from "three-bvh-csg";
+import { ActionbarContext } from "./context/actionbar/ActionbarContext";
 
-// sphere brush for CSG operations
-const sphereGeo = new SphereGeometry(2, 6, 6);
-const sphereMaterial = new MeshPhongMaterial({
+const terrainMaterial = new MeshPhongMaterial({
   color: "tan",
   shininess: 5,
   flatShading: true,
   specular: 0x222222,
 });
+const sphereGeo = new SphereGeometry(2, 6, 6);
 const sphereBrush = new Brush(sphereGeo);
-sphereBrush.material = sphereMaterial;
+sphereBrush.material = terrainMaterial;
+
+const boxGeo = new BoxGeometry(2, 2, 2);
+const boxBrush = new Brush(boxGeo);
+boxBrush.material = terrainMaterial;
 
 const wireframeMaterial = new MeshBasicMaterial({
   color: 0x00ff00,
   wireframe: true,
 });
-const previewMesh = new Mesh(sphereBrush.geometry, wireframeMaterial);
+const previewSphere = new Mesh(sphereGeo, wireframeMaterial);
+const previewBox = new Mesh(boxGeo, wireframeMaterial);
 
 const evaluator = new Evaluator();
 
@@ -35,8 +47,29 @@ const gridSpacing = 10;
 const Terrain = () => {
   const [chunkRefs, setChunkRefs] = useState<Brush[][]>([]);
   const chunkKeys = useRef<string[]>([]);
-
   const previewMeshRef = useRef<Mesh>();
+
+  const { activeActionbar } = useContext(ActionbarContext);
+
+  const shapeBrush = useMemo(() => {
+    if (activeActionbar === "1") {
+      return sphereBrush;
+    } else if (activeActionbar === "2") {
+      return boxBrush;
+    } else {
+      return null;
+    }
+  }, [activeActionbar]);
+
+  const previewShapeBrush = useMemo(() => {
+    if (activeActionbar === "1") {
+      return previewSphere;
+    } else if (activeActionbar === "2") {
+      return previewBox;
+    } else {
+      return null;
+    }
+  }, [activeActionbar]);
 
   useEffect(() => {
     const loadChunks = async () => {
@@ -85,15 +118,16 @@ const Terrain = () => {
   const onEditChunk = useCallback(
     async (e: ThreeEvent<Mesh>, x: number, z: number) => {
       e.stopPropagation();
+      if (!shapeBrush) return;
       const chunkRef = chunkRefs[x][z];
       chunkRef.updateMatrixWorld();
 
-      sphereBrush.position.copy(e.point);
-      sphereBrush.updateMatrixWorld();
+      shapeBrush.position.copy(e.point);
+      shapeBrush.updateMatrixWorld();
 
       const newResultCSG = evaluator.evaluate(
         chunkRef,
-        sphereBrush,
+        shapeBrush,
         SUBTRACTION
       );
 
@@ -105,11 +139,12 @@ const Terrain = () => {
       });
       chunkKeys.current[x + z] = Math.random().toString();
     },
-    [chunkRefs]
+    [chunkRefs, shapeBrush]
   );
 
   const previewEdit = useCallback((e: ThreeEvent<Mesh>) => {
     e.stopPropagation();
+    if (!previewMeshRef.current) return;
     const point = e.point;
     previewMeshRef.current.position.copy(point);
   }, []);
@@ -126,7 +161,7 @@ const Terrain = () => {
             >
               <primitive
                 object={brush}
-                onClick={(e) => onEditChunk(e, x, z)}
+                onClick={(e: ThreeEvent<Mesh>) => onEditChunk(e, x, z)}
                 onPointerMove={previewEdit}
                 receiveShadow
                 castShadow
@@ -135,7 +170,9 @@ const Terrain = () => {
           );
         });
       })}
-      <primitive object={previewMesh} ref={previewMeshRef} />
+      {previewShapeBrush && (
+        <primitive object={previewShapeBrush} ref={previewMeshRef} />
+      )}
     </>
   );
 };

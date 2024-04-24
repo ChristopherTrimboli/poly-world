@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ActionbarContext } from "./ActionbarContext";
 
 const ActionbarProvider = ({ children }) => {
-  const [activeBar, setActiveBar] = useState<string>(null);
+  const [activeBar, setActiveBar] = useState<string>("1");
 
   const setActiveActionbar = useCallback((actionbar: string) => {
     setActiveBar(actionbar);
