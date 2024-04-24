@@ -6,6 +6,7 @@ import Scene from "./Scene";
 import SocketProvider from "./socket/SocketProvider";
 import { Controls } from "./types";
 import { useEffect } from "react";
+import ActionbarProvider from "./context/actionbar/ActionbarProvider";
 
 const keyboardMap: KeyboardControlsEntry<Controls>[] = [
   { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
@@ -45,10 +46,12 @@ export default function PolyWorld() {
 
   return (
     <SocketProvider>
-      <KeyboardControls map={keyboardMap}>
-        <Overlay />
-        <Scene />
-      </KeyboardControls>
+      <ActionbarProvider>
+        <KeyboardControls map={keyboardMap}>
+          <Overlay />
+          <Scene />
+        </KeyboardControls>
+      </ActionbarProvider>
     </SocketProvider>
   );
 }

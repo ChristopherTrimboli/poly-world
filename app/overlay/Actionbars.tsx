@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import { Circle, useKeyboardControls } from "@react-three/drei";
 import { Controls } from "../types";
 import { Canvas } from "@react-three/fiber";
+import { ActionbarContext } from "../context/actionbar/ActionbarContext";
 
 const actionBarsConfig = [
   {
@@ -111,7 +112,7 @@ const ActionBar = ({ children, label, description, onClick, isActive }) => {
 };
 
 const Actionbars = () => {
-  const [activeBar, setActiveBar] = useState<string>("1");
+  const { activeActionbar, setActiveActionbar } = useContext(ActionbarContext);
 
   const action1Pressed = useKeyboardControls<Controls>(
     (state) => state.action1
@@ -145,16 +146,16 @@ const Actionbars = () => {
   );
 
   useEffect(() => {
-    if (action1Pressed) return setActiveBar("1");
-    if (action2Pressed) return setActiveBar("2");
-    if (action3Pressed) return setActiveBar("3");
-    if (action4Pressed) return setActiveBar("4");
-    if (action5Pressed) return setActiveBar("5");
-    if (action6Pressed) return setActiveBar("6");
-    if (action7Pressed) return setActiveBar("7");
-    if (action8Pressed) return setActiveBar("8");
-    if (action9Pressed) return setActiveBar("9");
-    if (action0Pressed) return setActiveBar("0");
+    if (action1Pressed) return setActiveActionbar("1");
+    if (action2Pressed) return setActiveActionbar("2");
+    if (action3Pressed) return setActiveActionbar("3");
+    if (action4Pressed) return setActiveActionbar("4");
+    if (action5Pressed) return setActiveActionbar("5");
+    if (action6Pressed) return setActiveActionbar("6");
+    if (action7Pressed) return setActiveActionbar("7");
+    if (action8Pressed) return setActiveActionbar("8");
+    if (action9Pressed) return setActiveActionbar("9");
+    if (action0Pressed) return setActiveActionbar("0");
   }, [
     action1Pressed,
     action2Pressed,
@@ -166,6 +167,7 @@ const Actionbars = () => {
     action8Pressed,
     action9Pressed,
     action0Pressed,
+    setActiveActionbar,
   ]);
 
   return (
@@ -187,8 +189,8 @@ const Actionbars = () => {
             key={label}
             label={label}
             description={description}
-            isActive={activeBar === label}
-            onClick={() => setActiveBar(label)}
+            isActive={activeActionbar === label}
+            onClick={() => setActiveActionbar(label)}
           >
             {children}
           </ActionBar>
