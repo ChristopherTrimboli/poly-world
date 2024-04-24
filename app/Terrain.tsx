@@ -93,9 +93,11 @@ const Terrain = () => {
             side: 2,
           });
 
+          const randomHeight = Math.random() * 6 - 12;
+
           gridBrush.position.set(
             x * gridSpacing,
-            -gridSpacing,
+            randomHeight,
             z * gridSpacing
           );
           gridBrush.rotation.set(-Math.PI / 2, 0, 0);

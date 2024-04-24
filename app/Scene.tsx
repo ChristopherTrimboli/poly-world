@@ -27,7 +27,7 @@ const SceneContent = () => {
 
         <Thruster />
 
-        <Ufo position={new Vector3(5, 2, 20)} />
+        <Ufo position={new Vector3(5, 6, 20)} />
 
         {/* trees */}
         <Tree position={new Vector3(10, 0, 0)} rotation={new Euler()} />
