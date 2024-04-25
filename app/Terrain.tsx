@@ -15,7 +15,7 @@ import {
   MeshPhongMaterial,
   SphereGeometry,
 } from "three";
-import { Brush, SUBTRACTION, Evaluator } from "three-bvh-csg";
+import { Brush, SUBTRACTION, Evaluator, ADDITION } from "three-bvh-csg";
 import { ActionbarContext } from "./context/actionbar/ActionbarContext";
 
 const terrainMaterial = new MeshPhongMaterial({
@@ -32,14 +32,9 @@ const boxGeo = new BoxGeometry(1.5, 1.5, 1.5);
 const boxBrush = new Brush(boxGeo);
 boxBrush.material = terrainMaterial;
 
-const wireframeMaterial = new MeshBasicMaterial({
-  color: 0x00ff00,
-  wireframe: true,
-});
-const previewSphere = new Mesh(sphereGeo, wireframeMaterial);
-const previewBox = new Mesh(boxGeo, wireframeMaterial);
-
 const evaluator = new Evaluator();
+evaluator.useGroups = true;
+evaluator.consolidateMaterials = true;
 
 const gridSize = 20;
 const gridSpacing = 10;
@@ -49,7 +44,7 @@ const Terrain = () => {
   const chunkKeys = useRef<string[]>([]);
   const previewMeshRef = useRef<Mesh>();
 
-  const { activeActionbar } = useContext(ActionbarContext);
+  const { activeActionbar, editType } = useContext(ActionbarContext);
 
   const shapeBrush = useMemo(() => {
     if (activeActionbar === "1") {
@@ -62,14 +57,18 @@ const Terrain = () => {
   }, [activeActionbar]);
 
   const previewShapeBrush = useMemo(() => {
+    const wireframeMaterial = new MeshBasicMaterial({
+      color: editType === "add" ? 0x00ff00 : 0xff0000,
+      wireframe: true,
+    });
     if (activeActionbar === "1") {
-      return previewSphere;
+      return new Mesh(sphereGeo, wireframeMaterial);
     } else if (activeActionbar === "2") {
-      return previewBox;
+      return new Mesh(boxGeo, wireframeMaterial);
     } else {
       return null;
     }
-  }, [activeActionbar]);
+  }, [activeActionbar, editType]);
 
   useEffect(() => {
     const loadChunks = async () => {
@@ -130,7 +129,7 @@ const Terrain = () => {
       const newResultCSG = evaluator.evaluate(
         chunkRef,
         shapeBrush,
-        SUBTRACTION
+        editType === "subtract" ? SUBTRACTION : ADDITION
       );
 
       setChunkRefs((prev) => {
@@ -141,7 +140,7 @@ const Terrain = () => {
       });
       chunkKeys.current[x + z] = Math.random().toString();
     },
-    [chunkRefs, shapeBrush]
+    [chunkRefs, editType, shapeBrush]
   );
 
   const previewEdit = useCallback((e: ThreeEvent<Mesh>) => {

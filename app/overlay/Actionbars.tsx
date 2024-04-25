@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import React, { ReactNode, useContext, useEffect, useMemo } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import { Circle, useKeyboardControls, Box as DreiBox } from "@react-three/drei";
 import { Controls } from "../types";
@@ -11,70 +11,14 @@ interface ActionBarConfig {
   children?: JSX.Element;
 }
 
-const actionBarsConfig: ActionBarConfig[] = [
-  {
-    label: "1",
-    description: "Sphere Tool",
-    children: (
-      <Canvas>
-        <ambientLight intensity={1.75} />
-        <Circle args={[2.5, 8, 8]}>
-          <meshPhongMaterial
-            attach="material"
-            color="gold"
-            flatShading
-            specular={0x222222}
-            shininess={5}
-            wireframe
-          />
-        </Circle>
-      </Canvas>
-    ),
-  },
-  {
-    label: "2",
-    description: "Box Tool",
-    children: (
-      <Canvas>
-        <ambientLight intensity={1.75} />
-        <DreiBox args={[3, 3, 3]}>
-          <meshPhongMaterial
-            attach="material"
-            color="gold"
-            flatShading
-            specular={0x222222}
-            shininess={5}
-            wireframe
-          />
-        </DreiBox>
-      </Canvas>
-    ),
-  },
-  {
-    label: "3",
-  },
-  {
-    label: "4",
-  },
-  {
-    label: "5",
-  },
-  {
-    label: "6",
-  },
-  {
-    label: "7",
-  },
-  {
-    label: "8",
-  },
-  {
-    label: "9",
-  },
-  {
-    label: "0",
-  },
-];
+const ShapeToolActionBar = ({ children }: { children: ReactNode }) => {
+  return (
+    <Canvas>
+      <ambientLight intensity={1.75} />
+      {children}
+    </Canvas>
+  );
+};
 
 const ActionBar = ({ children, label, description, onClick, isActive }) => {
   return (
@@ -125,7 +69,80 @@ const ActionBar = ({ children, label, description, onClick, isActive }) => {
 };
 
 const Actionbars = () => {
-  const { activeActionbar, setActiveActionbar } = useContext(ActionbarContext);
+  const { activeActionbar, editType, setActiveActionbar, toggleEditType } =
+    useContext(ActionbarContext);
+
+  const actionBarsConfig: ActionBarConfig[] = useMemo(
+    () => [
+      {
+        label: "1",
+        description: "Sphere Tool",
+        children: (
+          <ShapeToolActionBar>
+            <Circle args={[2.5, 12, 12]}>
+              <meshPhongMaterial
+                attach="material"
+                color={editType === "add" ? "green" : "red"}
+                flatShading
+                specular={0x222222}
+                shininess={5}
+              />
+            </Circle>
+          </ShapeToolActionBar>
+        ),
+      },
+      {
+        label: "2",
+        description: "Box Tool",
+        children: (
+          <ShapeToolActionBar>
+            <DreiBox args={[3, 3, 3]}>
+              <meshPhongMaterial
+                attach="material"
+                color={editType === "add" ? "green" : "red"}
+                flatShading
+                specular={0x222222}
+                shininess={5}
+              />
+            </DreiBox>
+          </ShapeToolActionBar>
+        ),
+      },
+      {
+        label: "3",
+      },
+      {
+        label: "4",
+      },
+      {
+        label: "5",
+      },
+      {
+        label: "6",
+      },
+      {
+        label: "7",
+      },
+      {
+        label: "8",
+      },
+      {
+        label: "9",
+      },
+      {
+        label: "0",
+      },
+    ],
+    [editType]
+  );
+
+  const qPressed = useKeyboardControls<Controls>((state) => state.actionQ);
+
+  useEffect(() => {
+    if (qPressed) {
+      toggleEditType();
+    }
+  }, [qPressed, toggleEditType]);
 
   const action1Pressed = useKeyboardControls<Controls>(
     (state) => state.action1
