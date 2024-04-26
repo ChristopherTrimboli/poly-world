@@ -72,6 +72,7 @@ const TerrianShapeTools = ({
 
 const Terrain = () => {
   const [chunkRefs, setChunkRefs] = useState<Brush[][]>([]);
+  const chunkKeys = useRef<string[]>([]);
   const shapeBrushRef = useRef<Brush>();
 
   const { editType } = useContext(ActionbarContext);
@@ -114,6 +115,7 @@ const Terrain = () => {
 
             return newChunkRefs;
           });
+          chunkKeys.current[x + z] = Math.random().toString();
         }
       }
     };
@@ -149,6 +151,7 @@ const Terrain = () => {
 
         return newChunkRefs;
       });
+      chunkKeys.current[x + z] = Math.random().toString();
     },
     [chunkRefs, editType]
   );
@@ -165,7 +168,11 @@ const Terrain = () => {
       {chunkRefs.map((row, x) => {
         return row.map((brush, z) => {
           return (
-            <RigidBody type="fixed" colliders="trimesh" key={`${x}-${z}`}>
+            <RigidBody
+              type="fixed"
+              colliders="trimesh"
+              key={chunkKeys.current[x + z]}
+            >
               <primitive
                 object={brush}
                 onClick={(e: ThreeEvent<Mesh>) => onEditChunk(e, x, z)}
