@@ -2,7 +2,7 @@
 
 A simple world to have fun in.
 
-![image](https://github.com/ChristopherTrimboli/poly-world/assets/27584221/c669d6b7-cffe-45e7-8204-6ded9fb5dbaa)
+![image](https://github.com/ChristopherTrimboli/poly-world/assets/27584221/cafd1f23-d6f3-42ee-9738-7910182b0af1)
 
 ## Dev Guide
 
@@ -36,3 +36,5 @@ NEXT_PUBLIC_WS_URL = ws://localhost:9001
 `git push heroku main`
 
 `heroku logs --tail`
+
+![image](https://github.com/ChristopherTrimboli/poly-world/assets/27584221/c669d6b7-cffe-45e7-8204-6ded9fb5dbaa)
