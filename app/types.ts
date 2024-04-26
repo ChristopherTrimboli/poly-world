@@ -18,4 +18,5 @@ export enum Controls {
   actionF = "actionF",
   actionQ = "actionQ",
   actionE = "actionE",
+  actionR = "actionR",
 }

@@ -8,13 +8,7 @@ import {
   useContext,
   useMemo,
 } from "react";
-import {
-  BoxGeometry,
-  Mesh,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
-  SphereGeometry,
-} from "three";
+import { BoxGeometry, Mesh, MeshPhongMaterial, SphereGeometry } from "three";
 import { Brush, SUBTRACTION, Evaluator, ADDITION } from "three-bvh-csg";
 import { ActionbarContext } from "./context/actionbar/ActionbarContext";
 
@@ -24,27 +18,29 @@ const terrainMaterial = new MeshPhongMaterial({
   flatShading: true,
   specular: 0x222222,
 });
+const previewMaterial = new MeshPhongMaterial({
+  color: 0x00ff00,
+  wireframe: true,
+});
+
 const sphereGeo = new SphereGeometry(1.5, 6, 6);
-const sphereBrush = new Brush(sphereGeo);
-sphereBrush.material = terrainMaterial;
+const sphereBrush = new Brush(sphereGeo, previewMaterial);
 
 const boxGeo = new BoxGeometry(1.5, 1.5, 1.5);
-const boxBrush = new Brush(boxGeo);
-boxBrush.material = terrainMaterial;
+const boxBrush = new Brush(boxGeo, previewMaterial);
 
 const evaluator = new Evaluator();
-evaluator.useGroups = true;
 evaluator.consolidateMaterials = true;
 
 const gridSize = 20;
 const gridSpacing = 10;
 
-const Terrain = () => {
-  const [chunkRefs, setChunkRefs] = useState<Brush[][]>([]);
-  const chunkKeys = useRef<string[]>([]);
-  const previewMeshRef = useRef<Mesh>();
-
-  const { activeActionbar, editType } = useContext(ActionbarContext);
+const TerrianShapeTools = ({
+  shapeBrushRef,
+}: {
+  shapeBrushRef: React.MutableRefObject<Brush | null>;
+}) => {
+  const { activeActionbar, editType, editSize } = useContext(ActionbarContext);
 
   const shapeBrush = useMemo(() => {
     if (activeActionbar === "1") {
@@ -56,19 +52,29 @@ const Terrain = () => {
     }
   }, [activeActionbar]);
 
-  const previewShapeBrush = useMemo(() => {
-    const wireframeMaterial = new MeshBasicMaterial({
+  useEffect(() => {
+    shapeBrushRef.current.material = new MeshPhongMaterial({
       color: editType === "add" ? 0x00ff00 : 0xff0000,
       wireframe: true,
     });
-    if (activeActionbar === "1") {
-      return new Mesh(sphereGeo, wireframeMaterial);
-    } else if (activeActionbar === "2") {
-      return new Mesh(boxGeo, wireframeMaterial);
-    } else {
-      return null;
+  }, [editType, shapeBrushRef]);
+
+  useEffect(() => {
+    if (shapeBrush) {
+      shapeBrush.scale.set(editSize, editSize, editSize);
     }
-  }, [activeActionbar, editType]);
+  }, [editSize, shapeBrush]);
+
+  return (
+    <>{shapeBrush && <primitive object={shapeBrush} ref={shapeBrushRef} />}</>
+  );
+};
+
+const Terrain = () => {
+  const [chunkRefs, setChunkRefs] = useState<Brush[][]>([]);
+  const shapeBrushRef = useRef<Brush>();
+
+  const { editType } = useContext(ActionbarContext);
 
   useEffect(() => {
     const loadChunks = async () => {
@@ -108,7 +114,6 @@ const Terrain = () => {
 
             return newChunkRefs;
           });
-          chunkKeys.current[x + z] = Math.random().toString();
         }
       }
     };
@@ -119,18 +124,24 @@ const Terrain = () => {
   const onEditChunk = useCallback(
     async (e: ThreeEvent<Mesh>, x: number, z: number) => {
       e.stopPropagation();
-      if (!shapeBrush) return;
+      if (!shapeBrushRef.current) return;
       const chunkRef = chunkRefs[x][z];
       chunkRef.updateMatrixWorld();
 
-      shapeBrush.position.copy(e.point);
-      shapeBrush.updateMatrixWorld();
+      shapeBrushRef.current.position.copy(e.point);
+      shapeBrushRef.current.updateMatrixWorld();
+      shapeBrushRef.current.material = terrainMaterial;
 
       const newResultCSG = evaluator.evaluate(
         chunkRef,
-        shapeBrush,
+        shapeBrushRef.current,
         editType === "subtract" ? SUBTRACTION : ADDITION
       );
+
+      shapeBrushRef.current.material = new MeshPhongMaterial({
+        color: editType === "add" ? 0x00ff00 : 0xff0000,
+        wireframe: true,
+      });
 
       setChunkRefs((prev) => {
         const newChunkRefs = [...prev];
@@ -138,16 +149,15 @@ const Terrain = () => {
 
         return newChunkRefs;
       });
-      chunkKeys.current[x + z] = Math.random().toString();
     },
-    [chunkRefs, editType, shapeBrush]
+    [chunkRefs, editType]
   );
 
   const previewEdit = useCallback((e: ThreeEvent<Mesh>) => {
     e.stopPropagation();
-    if (!previewMeshRef.current) return;
+    if (!shapeBrushRef.current) return;
     const point = e.point;
-    previewMeshRef.current.position.copy(point);
+    shapeBrushRef.current.position.copy(point);
   }, []);
 
   return (
@@ -155,11 +165,7 @@ const Terrain = () => {
       {chunkRefs.map((row, x) => {
         return row.map((brush, z) => {
           return (
-            <RigidBody
-              type="fixed"
-              colliders="trimesh"
-              key={chunkKeys.current[x + z]}
-            >
+            <RigidBody type="fixed" colliders="trimesh" key={`${x}-${z}`}>
               <primitive
                 object={brush}
                 onClick={(e: ThreeEvent<Mesh>) => onEditChunk(e, x, z)}
@@ -171,9 +177,7 @@ const Terrain = () => {
           );
         });
       })}
-      {previewShapeBrush && (
-        <primitive object={previewShapeBrush} ref={previewMeshRef} />
-      )}
+      <TerrianShapeTools shapeBrushRef={shapeBrushRef} />
     </>
   );
 };

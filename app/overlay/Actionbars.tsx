@@ -69,8 +69,14 @@ const ActionBar = ({ children, label, description, onClick, isActive }) => {
 };
 
 const Actionbars = () => {
-  const { activeActionbar, editType, setActiveActionbar, toggleEditType } =
-    useContext(ActionbarContext);
+  const {
+    activeActionbar,
+    editType,
+    setActiveActionbar,
+    toggleEditType,
+    increaseEditSize,
+    decreaseEditSize,
+  } = useContext(ActionbarContext);
 
   const actionBarsConfig: ActionBarConfig[] = useMemo(
     () => [
@@ -137,12 +143,26 @@ const Actionbars = () => {
   );
 
   const qPressed = useKeyboardControls<Controls>((state) => state.actionQ);
+  const ePressed = useKeyboardControls<Controls>((state) => state.actionE);
+  const rPressed = useKeyboardControls<Controls>((state) => state.actionR);
+
+  useEffect(() => {
+    if (rPressed) {
+      toggleEditType();
+    }
+  }, [rPressed, toggleEditType]);
 
   useEffect(() => {
     if (qPressed) {
-      toggleEditType();
+      decreaseEditSize();
     }
-  }, [qPressed, toggleEditType]);
+  }, [qPressed, decreaseEditSize]);
+
+  useEffect(() => {
+    if (ePressed) {
+      increaseEditSize();
+    }
+  }, [ePressed, increaseEditSize]);
 
   const action1Pressed = useKeyboardControls<Controls>(
     (state) => state.action1

@@ -28,6 +28,7 @@ const keyboardMap: KeyboardControlsEntry<Controls>[] = [
   { name: Controls.actionF, keys: ["KeyF"] },
   { name: Controls.actionQ, keys: ["KeyQ"] },
   { name: Controls.actionE, keys: ["KeyE"] },
+  { name: Controls.actionR, keys: ["KeyR"] },
 ];
 
 export default function PolyWorld() {

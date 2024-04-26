@@ -36,7 +36,7 @@ const SceneContent = () => {
       </Physics>
 
       {/* lights */}
-      <ambientLight intensity={0.05} />
+      <ambientLight intensity={0.1} />
       <directionalLight
         intensity={0.75}
         castShadow
