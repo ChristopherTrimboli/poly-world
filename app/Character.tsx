@@ -1,12 +1,17 @@
-import { useContext, useRef, useCallback } from "react";
+import { useContext, useRef, useCallback, MutableRefObject } from "react";
 import { Capsule } from "@react-three/drei";
-import Ecctrl from "../ecctrl/Ecctrl";
+import Ecctrl, { EcctrlProps } from "../ecctrl/Ecctrl";
 import { useFrame } from "@react-three/fiber";
 import { Mesh, Vector3 } from "three";
 import { SocketContext } from "./socket/SocketContext";
 import { SocketMessageType } from "@/socket/types";
+import { RapierRigidBody } from "@react-three/rapier";
 
-const Character = () => {
+const Character = ({
+  ecctrlRef,
+}: {
+  ecctrlRef: MutableRefObject<EcctrlProps & RapierRigidBody>;
+}) => {
   const socket = useContext(SocketContext);
   const userRef = useRef<Mesh>();
   const lastUpdate = useRef(performance.now());
@@ -61,7 +66,7 @@ const Character = () => {
   });
 
   return (
-    <Ecctrl camCollision={false} disableExternalRayForces>
+    <Ecctrl ref={ecctrlRef} camCollision={false} disableExternalRayForces>
       <pointLight intensity={2} />
       <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef} castShadow receiveShadow>
         <meshPhongMaterial

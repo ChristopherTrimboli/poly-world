@@ -116,6 +116,14 @@ const Actionbars = () => {
       },
       {
         label: "3",
+        description: "Grenade",
+        children: (
+          <ShapeToolActionBar>
+            <DreiBox args={[2, 2, 2]}>
+              <meshStandardMaterial color="gray" />
+            </DreiBox>
+          </ShapeToolActionBar>
+        ),
       },
       {
         label: "4",

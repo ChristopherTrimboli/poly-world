@@ -1,5 +1,5 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { CollisionEnterPayload, RigidBody } from "@react-three/rapier";
 import {
   useState,
   useEffect,
@@ -163,6 +163,12 @@ const Terrain = () => {
     shapeBrushRef.current.position.copy(point);
   }, []);
 
+  const handleCollision = useCallback((e: CollisionEnterPayload) => {
+    if (e.rigidBodyObject.userData.type === "grenade") {
+      console.log("Grenade collided with terrain");
+    }
+  }, []);
+
   return (
     <>
       {chunkRefs.map((row, x) => {
@@ -172,6 +178,7 @@ const Terrain = () => {
               type="fixed"
               colliders="trimesh"
               key={chunkKeys.current[x + z]}
+              onCollisionEnter={handleCollision}
             >
               <primitive
                 object={brush}

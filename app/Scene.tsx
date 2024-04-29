@@ -2,17 +2,21 @@
 
 import { Canvas } from "@react-three/fiber";
 import { AdaptiveDpr, AdaptiveEvents, Stars, StatsGl } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { Euler, Vector3 } from "three";
-import { Physics } from "@react-three/rapier";
+import { Physics, RapierRigidBody } from "@react-three/rapier";
 import Tree from "./Tree";
 import Terrain from "./Terrain";
 import UsersManager from "./UsersManager";
 import Character from "./Character";
 import Thruster from "./Thruster";
 import Ufo from "./Ufo";
+import GrenadesManager from "./grenade/GrenadesManager";
+import { EcctrlProps } from "../ecctrl/Ecctrl";
 
 const SceneContent = () => {
+  const ecctrlRef = useRef<EcctrlProps & RapierRigidBody>();
+
   return (
     <group>
       <Stars />
@@ -21,7 +25,9 @@ const SceneContent = () => {
           <Terrain />
         </Suspense>
 
-        <Character />
+        <GrenadesManager ecctrlRef={ecctrlRef} />
+
+        <Character ecctrlRef={ecctrlRef} />
 
         <UsersManager />
 
