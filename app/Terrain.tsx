@@ -53,6 +53,7 @@ const TerrianShapeTools = ({
   }, [activeActionbar]);
 
   useEffect(() => {
+    if (!shapeBrushRef.current) return;
     shapeBrushRef.current.material = new MeshPhongMaterial({
       color: editType === "add" ? 0x00ff00 : 0xff0000,
       wireframe: true,
