@@ -929,7 +929,12 @@ const Ecctrl = ({
   const bodyBalanceVecOnZ = React.useMemo(() => new THREE__namespace.Vector3(), []);
   const vectorY = React.useMemo(() => new THREE__namespace.Vector3(0, 1, 0), []);
   const vectorZ = React.useMemo(() => new THREE__namespace.Vector3(0, 0, 1), []);
+  const crossVecOnX = React.useMemo(() => new THREE__namespace.Vector3(), []);
+  const crossVecOnY = React.useMemo(() => new THREE__namespace.Vector3(), []);
+  const crossVecOnZ = React.useMemo(() => new THREE__namespace.Vector3(), []);
   const bodyContactForce = React.useMemo(() => new THREE__namespace.Vector3(), []);
+  const slopeRayOriginUpdatePosition = React.useMemo(() => new THREE__namespace.Vector3(), []);
+  const camBasedMoveCrossVecOnY = React.useMemo(() => new THREE__namespace.Vector3(), []);
   const idleAnimation = !animated ? null : useGame((state) => state.idle);
   const walkAnimation = !animated ? null : useGame((state) => state.walk);
   const runAnimation = !animated ? null : useGame((state) => state.run);
@@ -1379,12 +1384,16 @@ const Ecctrl = ({
     if (getCameraBased().isCameraBased) {
       modelEuler.y = pivot.rotation.y;
       pivot.getWorldDirection(modelFacingVec);
+      slopeRayOriginUpdatePosition.set(movingDirection.x, 0, movingDirection.z);
+      camBasedMoveCrossVecOnY.copy(slopeRayOriginUpdatePosition).cross(modelFacingVec);
+      slopeRayOriginRef.current.position.x = slopeRayOriginOffest * Math.sin(slopeRayOriginUpdatePosition.angleTo(modelFacingVec) * (camBasedMoveCrossVecOnY.y < 0 ? 1 : -1));
+      slopeRayOriginRef.current.position.z = slopeRayOriginOffest * Math.cos(slopeRayOriginUpdatePosition.angleTo(modelFacingVec) * (camBasedMoveCrossVecOnY.y < 0 ? 1 : -1));
     } else {
       characterModelIndicator.getWorldDirection(modelFacingVec);
     }
-    const crossVecOnX = vectorY.clone().cross(bodyBalanceVecOnX);
-    const crossVecOnY = modelFacingVec.clone().cross(bodyFacingVecOnY);
-    const crossVecOnZ = vectorY.clone().cross(bodyBalanceVecOnZ);
+    crossVecOnX.copy(vectorY).cross(bodyBalanceVecOnX);
+    crossVecOnY.copy(modelFacingVec).cross(bodyFacingVecOnY);
+    crossVecOnZ.copy(vectorY).cross(bodyBalanceVecOnZ);
     dragAngForce.set(
       (crossVecOnX.x < 0 ? 1 : -1) * autoBalanceSpringK * bodyBalanceVecOnX.angleTo(vectorY) - characterRef.current.angvel().x * autoBalanceDampingC,
       (crossVecOnY.y < 0 ? 1 : -1) * autoBalanceSpringOnY * modelFacingVec.angleTo(bodyFacingVecOnY) - characterRef.current.angvel().y * autoBalanceDampingOnY,
@@ -1541,6 +1550,7 @@ const Ecctrl = ({
       delta %= 1;
     if (characterRef.current) {
       currentPos.copy(characterRef.current.translation());
+      currentVel.copy(characterRef.current.linvel());
       characterRef.current.userData.canJump = canJump;
       characterRef.current.userData.slopeAngle = slopeAngle;
       characterRef.current.userData.characterRotated = characterRotated;
@@ -1572,8 +1582,6 @@ const Ecctrl = ({
     modelEuler.y = ((movingDirection2) => movingDirection2 === null ? modelEuler.y : movingDirection2)(getMovingDirection(forward, backward, leftward, rightward, pivot));
     if (forward || backward || leftward || rightward || gamepadKeys.forward || gamepadKeys.backward || gamepadKeys.leftward || gamepadKeys.rightward)
       moveCharacter(delta, run, slopeAngle, movingObjectVelocity);
-    if (characterRef.current)
-      currentVel.copy(characterRef.current.linvel());
     if ((jump || button1Pressed) && canJump) {
       jumpVelocityVec.set(
         currentVel.x,
