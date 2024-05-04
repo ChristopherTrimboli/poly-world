@@ -3,7 +3,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { Vector3 } from "three";
@@ -12,44 +11,39 @@ import { ActionbarContext } from "../context/actionbar/ActionbarContext";
 import { EcctrlProps } from "../../ecctrl/Ecctrl";
 import { RapierRigidBody } from "@react-three/rapier";
 
+interface Grenade {
+  throwPosition: Vector3;
+  throwDirection: Vector3;
+}
+
 const GrenadesManager = ({
   ecctrlRef,
 }: {
   ecctrlRef: MutableRefObject<EcctrlProps & RapierRigidBody>;
 }) => {
-  const [grenades, setGrenades] = useState<Vector3[]>([]);
-  const mousePositionRef = useRef({ x: 0, y: 0 });
+  const [grenades, setGrenades] = useState<Grenade[]>([]);
 
   const { activeActionbar } = useContext(ActionbarContext);
-
-  const updateMousePosition = useCallback((ev) => {
-    mousePositionRef.current = { x: ev.clientX, y: ev.clientY };
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("mousemove", updateMousePosition);
-    return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-    };
-  }, [updateMousePosition]);
 
   const handleThrowGrenade = useCallback(() => {
     if (activeActionbar !== "3") return;
     const characterPosition = ecctrlRef.current.translation();
-    const direction = new Vector3(
-      mousePositionRef.current.x - characterPosition.x,
-      mousePositionRef.current.y - characterPosition.y,
-      0.5
-    ).normalize();
+    const characterRotation = ecctrlRef.current.rotation();
 
-    setGrenades((prev) => [
-      ...prev,
-      new Vector3(
-        characterPosition.x + direction.x,
-        characterPosition.y + direction.y,
-        characterPosition.z + direction.z
-      ),
-    ]);
+    // throw grenade outwards from character position and rotation...
+    const throwPosition = new Vector3(
+      characterPosition.x,
+      characterPosition.y + 1,
+      characterPosition.z
+    );
+
+    const throwDirection = new Vector3(
+      Math.sin(characterRotation.y),
+      0,
+      Math.cos(characterRotation.y)
+    ).multiplyScalar(10);
+
+    setGrenades((prev) => [...prev, { throwPosition, throwDirection }]);
   }, [activeActionbar, ecctrlRef]);
 
   useEffect(() => {
@@ -59,10 +53,19 @@ const GrenadesManager = ({
     };
   }, [handleThrowGrenade]);
 
+  const disposeGrenade = useCallback(() => {
+    setGrenades((prev) => prev.slice(1));
+  }, []);
+
   return (
     <>
-      {grenades.map((position, index) => (
-        <Grenade key={index} position={position} />
+      {grenades.map(({ throwPosition, throwDirection }, index) => (
+        <Grenade
+          key={index}
+          throwPosition={throwPosition}
+          throwDirection={throwDirection}
+          disposeGrenade={disposeGrenade}
+        />
       ))}
     </>
   );

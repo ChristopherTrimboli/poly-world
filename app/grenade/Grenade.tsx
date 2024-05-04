@@ -1,30 +1,45 @@
 import { Box } from "@react-three/drei";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
 
-const Grenade = ({ position }: { position: Vector3 }) => {
+interface GrenadeProps {
+  throwPosition: Vector3;
+  throwDirection: Vector3;
+  disposeGrenade: () => void;
+}
+
+const Grenade = ({
+  throwPosition,
+  throwDirection,
+  disposeGrenade,
+}: GrenadeProps) => {
   const grenadeMeshRef = useRef<Mesh>(null);
   const grenadeRigidBodyRef = useRef<RapierRigidBody>(null);
+  const [bounceCount, setBounceCount] = useState(0);
 
   useEffect(() => {
     // throw grenade in direction
     if (grenadeRigidBodyRef.current) {
-      grenadeRigidBodyRef.current.setLinvel(position, true);
+      grenadeRigidBodyRef.current.setLinvel(throwDirection, true);
     }
-  });
+  }, [throwDirection]);
 
   const handleCollision = () => {
+    setBounceCount((prev) => prev + 1);
     // explode
     if (grenadeMeshRef.current) {
       (grenadeMeshRef.current.material as any).color.set("red");
+      if (bounceCount > 5) {
+        disposeGrenade();
+      }
     }
   };
 
   return (
     <RigidBody
       ref={grenadeRigidBodyRef}
-      position={position}
+      position={throwPosition}
       type="dynamic"
       onCollisionEnter={handleCollision}
       userData={{ type: "grenade" }}

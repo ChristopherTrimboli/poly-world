@@ -11,6 +11,7 @@ import {
 import { BoxGeometry, Mesh, MeshPhongMaterial, SphereGeometry } from "three";
 import { Brush, SUBTRACTION, Evaluator, ADDITION } from "three-bvh-csg";
 import { ActionbarContext } from "./context/actionbar/ActionbarContext";
+import { throttle, debounce } from "lodash";
 
 const terrainMaterial = new MeshPhongMaterial({
   color: "tan",
@@ -164,11 +165,38 @@ const Terrain = () => {
     shapeBrushRef.current.position.copy(point);
   }, []);
 
-  const handleCollision = useCallback((e: CollisionEnterPayload) => {
-    if (e.rigidBodyObject.userData.type === "grenade") {
-      console.log("Grenade collided with terrain");
-    }
-  }, []);
+  const setTerrainChunk = useCallback(
+    debounce((chunk: Brush, x: number, z: number) => {
+      chunkKeys.current[x + z] = Math.random().toString();
+    }, 2000),
+    [chunkRefs]
+  );
+
+  const handleCollision = useCallback(
+    throttle((e: CollisionEnterPayload, x: number, z: number) => {
+      if (e.rigidBodyObject.userData.type === "grenade") {
+        const chunkRef = chunkRefs[x][z];
+        chunkRef.updateMatrixWorld();
+
+        const grenadePosition = e.other.rigidBodyObject.position;
+
+        const brush = new Brush(new SphereGeometry(1, 4, 4), terrainMaterial);
+
+        brush.position.copy(grenadePosition);
+        brush.updateMatrixWorld();
+
+        const newResultCSG = evaluator.evaluate(chunkRef, brush, SUBTRACTION);
+        setChunkRefs((prev) => {
+          const newChunkRefs = [...prev];
+          newChunkRefs[x][z] = newResultCSG;
+
+          return newChunkRefs;
+        });
+        setTerrainChunk(newResultCSG, x, z);
+      }
+    }, 100),
+    [chunkRefs, setTerrainChunk]
+  );
 
   return (
     <>
@@ -179,7 +207,7 @@ const Terrain = () => {
               type="fixed"
               colliders="trimesh"
               key={chunkKeys.current[x + z]}
-              onCollisionEnter={handleCollision}
+              onCollisionEnter={(e) => handleCollision(e, x, z)}
             >
               <primitive
                 object={brush}

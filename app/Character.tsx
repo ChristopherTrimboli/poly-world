@@ -67,15 +67,22 @@ const Character = ({
 
   return (
     <Ecctrl ref={ecctrlRef} camCollision={false} disableExternalRayForces>
-      <pointLight intensity={2} />
-      <Capsule args={[0.3, 0.5, 4, 12]} ref={userRef} castShadow receiveShadow>
-        <meshPhongMaterial
-          color={socket?.color || "red"}
-          attach="material"
-          shininess={5}
-          flatShading
-        />
-      </Capsule>
+      <group>
+        <pointLight intensity={2} />
+        <Capsule
+          args={[0.3, 0.5, 4, 12]}
+          ref={userRef}
+          castShadow
+          receiveShadow
+        >
+          <meshPhongMaterial
+            color={socket?.color || "red"}
+            attach="material"
+            shininess={5}
+            flatShading
+          />
+        </Capsule>
+      </group>
     </Ecctrl>
   );
 };
