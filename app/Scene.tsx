@@ -6,7 +6,7 @@ import { Suspense, useRef } from "react";
 import { Euler, Vector3 } from "three";
 import { Physics, RapierRigidBody } from "@react-three/rapier";
 import Tree from "./Tree";
-import Terrain from "./Terrain";
+import Terrain from "./terrain/Terrain";
 import UsersManager from "./UsersManager";
 import Character from "./Character";
 import Thruster from "./Thruster";

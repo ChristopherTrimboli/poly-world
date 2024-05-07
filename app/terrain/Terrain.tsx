@@ -7,11 +7,13 @@ import {
   useRef,
   useContext,
   useMemo,
+  Suspense,
 } from "react";
 import { BoxGeometry, Mesh, MeshPhongMaterial, SphereGeometry } from "three";
 import { Brush, SUBTRACTION, Evaluator, ADDITION } from "three-bvh-csg";
-import { ActionbarContext } from "./context/actionbar/ActionbarContext";
+import { ActionbarContext } from "../context/actionbar/ActionbarContext";
 import { throttle, debounce } from "lodash";
+import TerrianGems from "./Gems";
 
 const terrainMaterial = new MeshPhongMaterial({
   color: "tan",
@@ -33,8 +35,8 @@ const boxBrush = new Brush(boxGeo, previewMaterial);
 const evaluator = new Evaluator();
 evaluator.consolidateMaterials = true;
 
-const gridSize = 20;
-const gridSpacing = 10;
+export const gridSize = 20;
+export const gridSpacing = 10;
 
 const TerrianShapeTools = ({
   shapeBrushRef,
@@ -203,24 +205,26 @@ const Terrain = () => {
       {chunkRefs.map((row, x) => {
         return row.map((brush, z) => {
           return (
-            <RigidBody
-              type="fixed"
-              colliders="trimesh"
-              key={chunkKeys.current[x + z]}
-              onCollisionEnter={(e) => handleCollision(e, x, z)}
-            >
-              <primitive
-                object={brush}
-                onClick={(e: ThreeEvent<Mesh>) => onEditChunk(e, x, z)}
-                onPointerMove={previewEdit}
-                receiveShadow
-                castShadow
-              />
-            </RigidBody>
+            <Suspense key={chunkKeys.current[x + z]} fallback={null}>
+              <RigidBody
+                type="fixed"
+                colliders="trimesh"
+                onCollisionEnter={(e) => handleCollision(e, x, z)}
+              >
+                <primitive
+                  object={brush}
+                  onClick={(e: ThreeEvent<Mesh>) => onEditChunk(e, x, z)}
+                  onPointerMove={previewEdit}
+                  receiveShadow
+                  castShadow
+                />
+              </RigidBody>
+            </Suspense>
           );
         });
       })}
       <TerrianShapeTools shapeBrushRef={shapeBrushRef} />
+      <TerrianGems />
     </>
   );
 };
